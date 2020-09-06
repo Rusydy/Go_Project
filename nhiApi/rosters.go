@@ -21,11 +21,11 @@ type Roster struct {
 	} `json:"position"`
 }
 
-type nhiRosterResponse struct {
-	Roster []Roster `json:"roster"`
+type nhiRostersResponse struct {
+	Rosters []Roster `json:"roster"`
 }
 
-func GetRoster(teamID int) ([]Roster, error) {
+func GetRosters(teamID int) ([]Roster, error) {
 	res, err := http.Get(fmt.Sprintf("%s/teams/%d/roster", baseURL, teamID))
 
 	if err != nil {
@@ -34,8 +34,8 @@ func GetRoster(teamID int) ([]Roster, error) {
 
 	defer res.Body.Close()
 
-	var response nhiRosterResponse
+	var response nhiRostersResponse
 	err = json.NewDecoder(res.Body).Decode(&response)
 
-	return response.Roster, err
+	return response.Rosters, err
 }

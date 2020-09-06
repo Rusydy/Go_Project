@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -29,11 +30,46 @@ func main() {
 		log.Fatalf("error while getting all teams: %v", err)
 	}
 
+	var wg sync.WaitGroup
+
+	wg.Add(len(teams))
+
+	//unbuffered channel
+	result := make(chan []nhiapi.Roster)
+
 	for _, team := range teams {
-		log.Println("------------------")
-		log.Printf("Name %s", team.Name)
-		log.Println("------------------")
+		go func(team nhiapi.Team) {
+			roster, err := nhiapi.GetRosters(team.ID)
+
+			if err != nil {
+				log.Fatalf("error getting roster: %v", err)
+			}
+
+			result <- roster
+
+			wg.Done()
+		}(team)
 	}
 
+	go func() {
+		wg.Wait()
+		close(result)
+	}()
+
+	display(result)
+
 	log.Printf("took %v", time.Now().Sub(now).String())
+}
+
+func display(result chan []nhiapi.Roster) {
+	for r := range result {
+		for _, ros := range r {
+			log.Println("----------------")
+			log.Printf("ID: %d\n", ros.Person.ID)
+			log.Printf("Name: %s\n", ros.Person.FullName)
+			log.Printf("Position: %s\n", ros.Position.Abbreviation)
+			log.Printf("Jersey: %s\n", ros.JerseyNumber)
+			log.Println("----------------")
+		}
+	}
 }
