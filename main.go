@@ -12,7 +12,7 @@ func main() {
 	//help benchmarking the request time
 	now := time.Now()
 
-	rosterFile, err := os.OpenFile("rosters.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) // OpenFile need to receipt some flags
+	rosterFile, err := os.OpenFile("rosters.txt", os.O_RDWR|os.O_CREATE, 0666) // OpenFile need to receipt some flags
 
 	if err != nil {
 		log.Fatalf("error opening the file rosters.txt: %v", err)
